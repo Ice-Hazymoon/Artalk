@@ -158,17 +158,10 @@
         display: inline-flex;
         vertical-align: sub;
         margin-left: 4px;
-        svg.markdown path {
-          fill: @color-grey;
-        }
       }
 
       &.active {
         color: @color-main;
-
-        & > i > svg.markdown path {
-          fill: @color-main;
-        }
       }
 
       &:not(:last-child) {
@@ -180,7 +173,7 @@
       background: @color-main;
       color: #FFF;
       border: none;
-      padding: 0 30px;
+      padding: 0 20px;
       height: 30px;
       cursor: pointer;
       transition: opacity .3s ease-in-out;

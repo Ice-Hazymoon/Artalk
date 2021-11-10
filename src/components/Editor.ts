@@ -7,12 +7,11 @@ import * as Ui from '../lib/ui'
 import EditorHTML from './html/editor.html?raw'
 
 import EmoticonsPlug from './editor-plugs/EmoticonsPlug'
-import PreviewPlug from './editor-plugs/PreviewPlug'
 import { CommentData } from '~/types/artalk-data'
 import Api from '../api'
 
 export default class Editor extends Component {
-  private readonly LOADABLE_PLUG_LIST = [EmoticonsPlug, PreviewPlug]
+  private readonly LOADABLE_PLUG_LIST = [EmoticonsPlug]
   public plugList: { [name: string]: any } = {}
 
   public el: HTMLElement
@@ -301,10 +300,6 @@ export default class Editor extends Component {
 
   getContentOriginal () {
     return this.textareaEl.value || '' // Tip: !!"0" === true
-  }
-
-  getContentMarked () {
-    return Utils.marked(this.ctx, this.getContent())
   }
 
   initBottomPart () {

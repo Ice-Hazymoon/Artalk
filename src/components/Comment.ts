@@ -98,7 +98,7 @@ export default class Comment extends Component {
 
     // 内容 & 折叠
     if (!this.data.is_collapsed) {
-      this.contentEl.innerHTML = this.getContentMarked()
+      this.contentEl.innerHTML = this.getContent()
     } else {
       this.contentEl.classList.add('atk-hide', 'atk-type-collapsed')
       const collapsedInfoEl = Utils.createElement(`
@@ -111,7 +111,7 @@ export default class Comment extends Component {
       const contentShowBtn = collapsedInfoEl.querySelector('.atk-show-btn')!
       contentShowBtn.addEventListener('click', (e) => {
         if (this.contentEl.classList.contains('atk-hide')) {
-          this.contentEl.innerHTML = this.getContentMarked()
+          this.contentEl.innerHTML = this.getContent()
           this.contentEl.classList.remove('atk-hide')
           Ui.playFadeInAnim(this.contentEl)
           contentShowBtn.innerHTML = '收起内容'
@@ -133,7 +133,7 @@ export default class Comment extends Component {
         <div class="atk-content"></div>
       </div>`)
       replyToEl.querySelector<HTMLElement>('.atk-nick')!.innerText = `@${this.replyTo.nick}`
-      let replyContent = Utils.marked(this.ctx, this.replyTo.content)
+      let replyContent = this.replyTo.content
       if (this.replyTo.is_collapsed) replyContent = '[已折叠]'
       replyToEl.querySelector<HTMLElement>('.atk-content')!.innerHTML = replyContent
       this.bodyEl.prepend(replyToEl)
@@ -295,8 +295,8 @@ export default class Comment extends Component {
     return `${this.ctx.conf.gravatar?.cdn || ''}${this.data.email_encrypted}?d=${encodeURIComponent(this.ctx.conf.defaultAvatar || '')}&s=80`
   }
 
-  getContentMarked () {
-    return Utils.marked(this.ctx, this.data.content)
+  getContent () {
+    return this.data.content
   }
 
   getDateFormatted () {

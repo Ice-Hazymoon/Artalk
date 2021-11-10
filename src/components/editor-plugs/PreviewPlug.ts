@@ -47,7 +47,7 @@ export default class PreviewPlug extends EditorPlug {
 
   updateContent () {
     if (this.el.style.display !== 'none') {
-      this.el.innerHTML = this.editor.getContentMarked()
+      this.el.innerHTML = this.editor.getContent()
     }
   }
 }
