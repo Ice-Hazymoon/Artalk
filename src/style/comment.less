@@ -46,13 +46,12 @@
       display: block;
       padding: 2px 0;
       float: left;
-      border-radius: 50%;
-      overflow: hidden;
 
       img {
         width: 48px;
         height: 48px;
-        border-radius: 3px;
+        object-fit: cover;
+        border-radius: 50%;
       }
     }
 
@@ -98,7 +97,7 @@
           &.atk-badge {
             .badge();
             background: var(--at-color-yellow);
-            color: var(#d3d4de);
+            color: #fff;
           }
 
           &.atk-ua {
@@ -255,6 +254,8 @@
       & > .atk-avatar img {
         width: 36px;
         height: 36px;
+        object-fit: cover;
+        border-radius: 50%;
       }
 
       & > .atk-comment-main {
