@@ -153,7 +153,7 @@ export default class Comment extends Component {
   private renderContent() {
     // 内容 & 折叠
     if (!this.data.is_collapsed) {
-      this.$content.innerHTML = this.getContentMarked()
+      this.$content.innerHTML = this.getContent()
       return
     }
 
@@ -170,7 +170,7 @@ export default class Comment extends Component {
       e.stopPropagation() // 防止穿透
 
       if (this.$content.classList.contains('atk-hide')) {
-        this.$content.innerHTML = this.getContentMarked()
+        this.$content.innerHTML = this.getContent()
         this.$content.classList.remove('atk-hide')
         Ui.playFadeInAnim(this.$content)
         contentShowBtn.innerHTML = '收起内容'
@@ -192,7 +192,7 @@ export default class Comment extends Component {
         <div class="atk-content"></div>
       </div>`)
     this.$replyTo.querySelector<HTMLElement>('.atk-nick')!.innerText = `@${this.replyTo.nick}`
-    let replyContent = Utils.marked(this.ctx, this.replyTo.content)
+    let replyContent = this.replyTo.content
     if (this.replyTo.is_collapsed) replyContent = '[已折叠]'
     this.$replyTo.querySelector<HTMLElement>('.atk-content')!.innerHTML = replyContent
     this.$body.prepend(this.$replyTo)
@@ -342,8 +342,8 @@ export default class Comment extends Component {
     return Utils.getGravatarURL(this.ctx, this.data.email_encrypted)
   }
 
-  getContentMarked() {
-    return Utils.marked(this.ctx, this.data.content)
+  getContent() {
+    return this.data.content
   }
 
   getDateFormatted() {
