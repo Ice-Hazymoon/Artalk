@@ -1,6 +1,7 @@
 .atk-main-editor {
   border: 1px solid @color-border;
   border-radius: @block-radius;
+  margin-top: @block-margin;
   margin-bottom: @block-margin;
   overflow: hidden;
   position: relative;
@@ -9,6 +10,7 @@
 
   @media only screen and (max-width: 768px) {
     & > {
+      margin-top: @block-margin-mobile;
       margin-bottom: @block-margin-mobile;
     }
   }

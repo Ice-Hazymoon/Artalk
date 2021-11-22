@@ -1,7 +1,7 @@
 .atk-comment-wrap {
   overflow: hidden;
   position: relative;
-  border-bottom: 1px solid @color-border;
+  // border-bottom: 1px solid @color-border;
 
   &.atk-flash-once {
     animation: atkFlashOnce 1s ease-in-out 0s;
@@ -44,7 +44,7 @@
 
   & > .atk-comment {
     display: block;
-    padding: 12px 10px;
+    padding: 12px 0px;
 
     & > .atk-avatar {
       display: block;
@@ -252,8 +252,8 @@
     }
 
     & > .atk-comment {
-      padding-top: 4px;
-      padding-bottom: 4px;
+      padding-top: 10px;
+      padding-bottom: 10px;
 
       & > .atk-avatar img {
         width: 36px;
@@ -271,7 +271,7 @@
   .atk-comment-children {
     .atk-comment-wrap {
       margin-top: 10px;
-      border-left: 1px dashed var(--at-color-border);
+      // border-left: 1px dashed var(--at-color-border);
 
       .comment-small-size()
     }
