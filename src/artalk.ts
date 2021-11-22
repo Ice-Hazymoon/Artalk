@@ -2,7 +2,7 @@ import './style/main.less'
 
 import Context from './context'
 import ArtalkConfig from '~/types/artalk-config'
-import defaultConf from './default-conf'
+import defaults from './defaults'
 
 import CheckerLauncher from './lib/checker'
 import Editor from './components/editor'
@@ -17,6 +17,8 @@ import { EventPayloadMap, Handler } from '~/types/event'
  * @link https://artalk.js.org
  */
 export default class Artalk {
+  public static readonly defaults: ArtalkConfig = defaults
+
   public ctx: Context
   public conf: ArtalkConfig
   public $root: HTMLElement
@@ -28,12 +30,12 @@ export default class Artalk {
 
   constructor (customConf: ArtalkConfig) {
     // 配置
-    this.conf = { ...defaultConf, ...customConf }
+    this.conf = { ...Artalk.defaults, ...customConf }
     this.conf.server = this.conf.server.replace(/\/$/, '')
 
     // 默认 pageKey
     if (!this.conf.pageKey) {
-      this.conf.pageKey = `${window.location.protocol}//'${window.location.host}/${window.location.pathname}`
+      this.conf.pageKey = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
     }
 
     // 装载元素
@@ -70,7 +72,7 @@ export default class Artalk {
     this.$root.appendChild(this.sidebar.$el)
 
     // 评论获取
-    this.list.reqComments()
+    this.list.fetchComments()
 
     // 事件绑定初始化
     this.initEventBind()
@@ -107,6 +109,11 @@ export default class Artalk {
       this.ctx.trigger('check-admin-show-el')
       this.ctx.trigger('list-refresh-ui')
     })
+  }
+
+  /** 重新加载 */
+  public reload() {
+    this.list.fetchComments()
   }
 
   /** 暗黑模式 · 初始化 */

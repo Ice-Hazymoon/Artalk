@@ -16,7 +16,7 @@ export default class Api {
   // ============================
 
   /** 评论 · 获取 */
-  public get(offset: number, type?: string, flatMode?: boolean, paramsEditor?: (params: any) => void) {
+  public get(offset: number, flatMode?: boolean, paramsEditor?: (params: any) => void) {
     const params: any = {
       page_key: this.ctx.conf.pageKey,
       site_name: this.ctx.conf.site || '',
@@ -24,7 +24,6 @@ export default class Api {
       offset,
     }
 
-    if (type) params.type = type
     if (flatMode) params.flat_mode = flatMode // 平铺模式
     if (this.ctx.user.checkHasBasicUserInfo()) {
       params.name = this.ctx.user.data.nick
@@ -37,18 +36,18 @@ export default class Api {
   }
 
   /** 评论 · 创建 */
-  public async add(comment: { nick: string, email: string, link: string, content: string, rid: number }) {
+  public async add(comment: { nick: string, email: string, link: string, content: string, rid: number, page_key: string, page_title?: string, site_name?: string }) {
     const params: any = {
       name: comment.nick,
       email: comment.email,
       link: comment.link,
       content: comment.content,
       rid: comment.rid,
-      page_key: this.ctx.conf.pageKey,
-      page_title: this.ctx.conf.pageTitle || '',
+      page_key: comment.page_key,
     }
 
-    if (this.ctx.conf.site) params.site_name = this.ctx.conf.site
+    if (comment.page_title) params.page_title = comment.page_title
+    if (comment.site_name) params.site_name = comment.site_name
 
     const data = await POST<any>(this.ctx, `${this.baseURL}/add`, params)
     return (data.comment as CommentData)

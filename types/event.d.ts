@@ -27,7 +27,10 @@ export interface EventPayloadMap {
   'editor-show-loading': undefined    // 加载显示
   'editor-hide-loading': undefined    // 加载隐藏
   'editor-notify': NotifyConf         // 显示提示
-  'editor-reply': CommentData         // 设置回复
+  'editor-reply': EditorReplyPayload  // 设置回复
+  'editor-reply-cancel': undefined    // 取消回复
+  'editor-travel': HTMLElement
+  'editor-travel-back': undefined
 
   // Notify
   'unread-update': UnreadUpdatePayload // 未读数据更新
@@ -58,6 +61,12 @@ export interface UnreadUpdatePayload {
 }
 
 export type ListUpdatePayload = (data: ListData | undefined) => void
+
+export interface EditorReplyPayload {
+  data: CommentData
+  $el: HTMLElement
+  scroll?: boolean
+}
 
 // ============================================
 export interface Handler<P> {

@@ -29,6 +29,8 @@ export default class Editor extends Component {
   private replyComment: CommentData|null = null
   private $sendReply: HTMLElement|null = null
 
+  private isTraveling = false
+
   private get user () {
     return this.ctx.user
   }
@@ -59,10 +61,13 @@ export default class Editor extends Component {
     // 监听事件
     this.ctx.on('editor-open', () => (this.open()))
     this.ctx.on('editor-close', () => (this.close()))
-    this.ctx.on('editor-reply', (commentData) => (this.setReply(commentData)))
+    this.ctx.on('editor-reply', (p) => (this.setReply(p.data, p.$el, p.scroll)))
+    this.ctx.on('editor-reply-cancel', () => (this.cancelReply()))
     this.ctx.on('editor-show-loading', () => (Ui.showLoading(this.$el)))
     this.ctx.on('editor-hide-loading', () => (Ui.hideLoading(this.$el)))
     this.ctx.on('editor-notify', (f) => (this.showNotify(f.msg, f.type)))
+    this.ctx.on('editor-travel', ($el) => (this.travel($el)))
+    this.ctx.on('editor-travel-back', () => (this.travelBack()))
   }
 
   initLocalStorage () {
@@ -199,34 +204,37 @@ export default class Editor extends Component {
 
     // 依次实例化 plug
     this.LOADABLE_PLUG_LIST.forEach((PlugObj) => {
-      const plug = new PlugObj(this)
-      this.plugList[plug.getName()] = plug
-
       // 切换按钮
-      const btnElem = Utils.createElement(`<span class="atk-editor-action atk-editor-plug-switcher">${plug.getBtnHtml()}</span>`)
+      const btnElem = Utils.createElement(`<span class="atk-editor-action atk-editor-plug-switcher">${PlugObj.BtnHTML}</span>`)
       this.$plugSwitcherWrap.appendChild(btnElem)
       btnElem.addEventListener('click', () => {
+        let plug = this.plugList[PlugObj.Name]
+        if (!plug) {
+          plug = new PlugObj(this)
+          this.plugList[PlugObj.Name] = plug
+        }
+
         this.$plugSwitcherWrap.querySelectorAll('.active').forEach(item => item.classList.remove('active'))
 
         // 若点击已打开的，则收起
-        if (plug.getName() === this.openedPlugName) {
+        if (PlugObj.Name === this.openedPlugName) {
           plug.onHide()
           this.$plugWrap.style.display = 'none'
           this.openedPlugName = null
           return
         }
 
-        if (this.$plugWrap.querySelector(`[data-plug-name="${plug.getName()}"]`) === null) {
+        if (this.$plugWrap.querySelector(`[data-plug-name="${PlugObj.Name}"]`) === null) {
           // 需要初始化
           const plugEl = plug.getEl()
-          plugEl.setAttribute('data-plug-name', plug.getName())
+          plugEl.setAttribute('data-plug-name', PlugObj.Name)
           plugEl.style.display = 'none'
           this.$plugWrap.appendChild(plugEl)
         }
 
         (Array.from(this.$plugWrap.children) as HTMLElement[]).forEach((plugItemEl: HTMLElement) => {
           const plugItemName = plugItemEl.getAttribute('data-plug-name')!
-          if (plugItemName === plug.getName()) {
+          if (plugItemName === PlugObj.Name) {
             plugItemEl.style.display = ''
             this.plugList[plugItemName].onShow()
           } else {
@@ -236,7 +244,7 @@ export default class Editor extends Component {
         })
 
         this.$plugWrap.style.display = ''
-        this.openedPlugName = plug.getName()
+        this.openedPlugName = PlugObj.Name
 
         btnElem.classList.add('active')
       })
@@ -310,21 +318,27 @@ export default class Editor extends Component {
     this.$sendReply = null
   }
 
-  setReply (commentData: CommentData) {
+  setReply (commentData: CommentData, $comment: HTMLElement, scroll = true) {
     if (this.replyComment !== null) {
       this.cancelReply()
     }
 
     if (this.$sendReply === null) {
-      this.$sendReply = Utils.createElement('<div class="atk-send-reply-wrap"><div class="atk-send-reply">回复 <span class="atk-text"></span><span class="atk-cancel" title="取消 AT">×</span></div></div>');
+      this.$sendReply = Utils.createElement('<div class="atk-send-reply">回复 <span class="atk-text"></span><span class="atk-cancel" title="取消 AT">×</span></div>');
       this.$sendReply.querySelector<HTMLElement>('.atk-text')!.innerText = `@${commentData.nick}`
       this.$sendReply.addEventListener('click', () => {
         this.cancelReply()
       })
-      this.$textareaWrap.prepend(this.$sendReply)
+      this.$textareaWrap.append(this.$sendReply)
     }
     this.replyComment = commentData
-    Ui.scrollIntoView(this.$el)
+
+    if (this.ctx.conf.editorTravel === true) {
+      this.travel($comment)
+    }
+
+    if (scroll) Ui.scrollIntoView(this.$el)
+
     this.$textarea.focus()
   }
 
@@ -334,6 +348,10 @@ export default class Editor extends Component {
       this.$sendReply = null
     }
     this.replyComment = null
+
+    if (this.ctx.conf.editorTravel === true) {
+      this.travelBack()
+    }
   }
 
   initSubmit () {
@@ -361,8 +379,16 @@ export default class Editor extends Component {
         nick: this.user.data.nick,
         email: this.user.data.email,
         link: this.user.data.link,
-        rid: this.replyComment === null ? 0 : this.replyComment.id
+        rid: (this.replyComment === null) ? 0 : this.replyComment.id,
+        page_key: (this.replyComment === null) ? this.ctx.conf.pageKey : this.replyComment.page_key,
+        page_title: (this.replyComment === null) ? this.ctx.conf.pageTitle : undefined,
+        site_name: (this.replyComment === null) ? this.ctx.conf.site : this.replyComment.site_name
       })
+
+      // 回复不同页面的评论
+      if (this.replyComment !== null && this.replyComment.page_key !== this.ctx.conf.pageKey) {
+        window.open(`${this.replyComment.page_key}#atk-comment-${nComment.id}`)
+      }
 
       this.ctx.trigger('list-insert', nComment)
       this.clearEditor() // 清空编辑器
@@ -370,6 +396,7 @@ export default class Editor extends Component {
     } catch (err: any) {
       console.error(err)
       this.showNotify(`评论失败，${err.msg || String(err)}`, 'e')
+      return
     } finally {
       Ui.hideLoading(this.$el)
     }
@@ -399,6 +426,25 @@ export default class Editor extends Component {
     this.$closeComment.style.display = 'none'
     this.$textarea.style.display = ''
     this.$bottom.style.display = ''
+  }
+
+  travel ($afterEl: HTMLElement) {
+    if (this.isTraveling) return
+    this.isTraveling = true
+    this.$el.after(Utils.createElement('<div class="atk-editor-travel-placeholder"></div>'))
+
+    const $travelPlace = Utils.createElement('<div></div>')
+    $afterEl.after($travelPlace)
+    $travelPlace.replaceWith(this.$el)
+  }
+
+  travelBack () {
+    if (!this.isTraveling) return
+    this.isTraveling = false
+    this.ctx.$root.querySelector('.atk-editor-travel-placeholder')?.replaceWith(this.$el)
+
+    // 取消回复
+    if (this.replyComment !== null) this.cancelReply()
   }
 }
 

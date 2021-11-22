@@ -39,6 +39,14 @@ export default class MessageView extends SidebarView {
     this.list.noCommentText = '<div class="atk-sidebar-no-content">无内容</div>'
     this.list.renderComment = (comment) => {
       comment.setOpenURL(`${comment.data.page_key}#atk-comment-${comment.data.id}`)
+      comment.onReplyBtnClick = () => {
+        if (this.ctx.conf.editorTravel === true) {
+          this.ctx.trigger('editor-reply', {data: comment.data, $el: comment.$el, scroll: false})
+        } else {
+          this.ctx.trigger('sidebar-hide')
+          this.ctx.trigger('editor-reply', {data: comment.data, $el: comment.$el, scroll: true})
+        }
+      }
     }
     this.list.paramsEditor = (params) => {
       params.site_name = siteName
@@ -53,12 +61,12 @@ export default class MessageView extends SidebarView {
   switchTab(tab: string, siteName: string): boolean|void {
     //console.log(tab, siteName)
     this.viewActiveTab = tab
-    this.list.type = tab as any;
     this.list.isFirstLoad = true
     this.list.paramsEditor = (params) => {
+      params.type = tab as any
       params.site_name = siteName
     }
-    this.list.reqComments()
+    this.list.fetchComments()
 
     return true
   }

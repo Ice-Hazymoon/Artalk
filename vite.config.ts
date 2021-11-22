@@ -5,9 +5,9 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   build: {
-    target: 'esnext',
+    target: 'es2015',
     outDir: resolve(__dirname, "dist"),
-    minify: true,
+    minify: 'terser',
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
       name: 'Artalk',

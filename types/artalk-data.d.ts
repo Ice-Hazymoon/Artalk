@@ -47,9 +47,6 @@ export interface CommentData {
   /** 评论页面 url */
   page_url?: string
 
-  /** 评论页面 title */
-  page_title?: string
-
   /** 是否可见 */
   visible: boolean
 
@@ -67,8 +64,8 @@ export interface ListData {
   /** 评论数据 */
   comments: CommentData[]
 
-  /** 父级评论总数 */
-  total_parents: number
+  /** 根评论总数 */
+  total_roots: number
 
   /** 评论总数（包括所有子评论） */
   total: number
@@ -174,6 +171,14 @@ export interface NotifyData {
   /** 标为已读地址 */
   read_link: string
 }
+
+export type EmoticonGrpData = {
+  name: string,
+  type: 'emoticon'|'image'|'emoji'
+  items: {key: string, val: string}[]
+}
+
+export type EmoticonListData = EmoticonGrpData[]
 
 export interface ApiVersionData {
   /** API 程序名 */
