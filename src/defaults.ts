@@ -1,7 +1,6 @@
 import ArtalkConfig from "~/types/artalk-config";
-import emoticons from './assets/emoticons.json'
 
-const defaultConf: ArtalkConfig = {
+const defaults: ArtalkConfig = {
   el: '',
   pageKey: '',
   server: '',
@@ -11,8 +10,9 @@ const defaultConf: ArtalkConfig = {
   noComment: '「此时无声胜有声」',
   sendBtn: '发送评论',
   darkMode: false,
+  editorTravel: true,
 
-  emoticons,
+  emoticons: "https://cdn.jsdelivr.net/gh/ArtalkJS/Emoticons/grps/default.json",
 
   vote: true,
   voteDown: false,
@@ -31,12 +31,12 @@ const defaultConf: ArtalkConfig = {
   },
 
   heightLimit: {
-    content: 200,
-    children: 300,
+    content: 300,
+    children: 400,
   },
 
   reqTimeout: 15000,
   versionCheck: true,
 }
 
-export default defaultConf
+export default defaults

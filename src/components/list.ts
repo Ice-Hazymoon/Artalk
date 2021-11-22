@@ -42,7 +42,7 @@ export default class List extends ListLite {
     this.$el.querySelector<HTMLElement>('.atk-copyright')!.innerHTML = `Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v${ARTALK_VERSION}">Artalk</a>`
 
     // event listen
-    this.ctx.on('list-reload', () => (this.reqComments(0))) // 刷新评论
+    this.ctx.on('list-reload', () => (this.fetchComments(0))) // 刷新评论
     this.ctx.on('list-refresh-ui', () => (this.refreshUI()))
     this.ctx.on('list-import', (data) => (this.importComments(data)))
     this.ctx.on('list-insert', (data) => (this.insertComment(data)))
@@ -74,7 +74,7 @@ export default class List extends ListLite {
   public refreshUI () {
     super.refreshUI()
 
-    this.$el.querySelector<HTMLElement>('.atk-comment-count-num')!.innerText = String(this.commentsCount)
+    this.$el.querySelector<HTMLElement>('.atk-comment-count-num')!.innerText = String(Number(this.data?.total) || 0)
 
     // 已输入个人信息
     if (!!this.ctx.user.data.nick && !!this.ctx.user.data.email) {
@@ -85,7 +85,7 @@ export default class List extends ListLite {
 
     // 仅管理员显示控制
     this.ctx.trigger('check-admin-show-el')
-    this.$openSidebarBtn.innerText = (!this.ctx.user.data.isAdmin) ? '通知中心' : '控制中心'
+    this.$openSidebarBtn.querySelector<HTMLElement>('.atk-text')!.innerText = (!this.ctx.user.data.isAdmin) ? '通知中心' : '控制中心'
 
     // 关闭评论
     if (!!this.data && !!this.data.page && this.data.page.admin_only === true) {
@@ -130,7 +130,7 @@ export default class List extends ListLite {
     // TODO 若找不到评论的情况
     // if (!comment) { // 若找不到评论
     //   if (this.hasMoreComments) { // 阅读更多，并重试
-    //     await this.reqComments()
+    //     await this.fetchComments()
     //   }
     // }
 
@@ -161,7 +161,7 @@ export default class List extends ListLite {
       })
   }
 
-  public showUnreadBadge (count: number) {
+  public showUnreadBadge(count: number) {
     if (count > 0) {
       this.$unreadBadge.innerText = `${Number(count || 0)}`
       this.$unreadBadge.style.display = 'block'
