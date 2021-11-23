@@ -17,12 +17,9 @@ export default class Editor extends Component {
   public $header: HTMLElement
   public $textareaWrap: HTMLElement
   public $textarea: HTMLTextAreaElement
-  public $closeComment: HTMLTextAreaElement
   public $plugWrap: HTMLElement
   public $bottom: HTMLElement
-  public $bottomPartLeft: HTMLElement
-  public $plugSwitcherWrap: HTMLElement
-  public $bottomPartRight: HTMLElement
+  public $plugBtnWrap: HTMLElement
   public $submitBtn: HTMLButtonElement
   public $notifyWrap: HTMLElement
 
@@ -40,17 +37,14 @@ export default class Editor extends Component {
 
     this.$el = Utils.createElement(EditorHTML)
 
-    this.$header = this.$el.querySelector('.atk-editor-header')!
-    this.$textareaWrap = this.$el.querySelector('.atk-editor-textarea-wrap')!
-    this.$textarea = this.$el.querySelector('.atk-editor-textarea')!
-    this.$closeComment = this.$el.querySelector('.atk-close-comment')!
-    this.$plugWrap = this.$el.querySelector('.atk-editor-plug-wrap')!
-    this.$bottom = this.$el.querySelector('.atk-editor-bottom')!
-    this.$bottomPartLeft = this.$el.querySelector('.atk-editor-bottom-part.atk-left')!
-    this.$plugSwitcherWrap = this.$el.querySelector('.atk-editor-plug-switcher-wrap')!
-    this.$bottomPartRight = this.$el.querySelector('.atk-editor-bottom-part.atk-right')!
+    this.$header = this.$el.querySelector('.atk-header')!
+    this.$textareaWrap = this.$el.querySelector('.atk-textarea-wrap')!
+    this.$textarea = this.$el.querySelector('.atk-textarea')!
+    this.$plugWrap = this.$el.querySelector('.atk-plug-wrap')!
+    this.$bottom = this.$el.querySelector('.atk-bottom')!
+    this.$plugBtnWrap = this.$el.querySelector('.atk-plug-btn-wrap')!
     this.$submitBtn = this.$el.querySelector('.atk-send-btn')!
-    this.$notifyWrap = this.$el.querySelector('.atk-editor-notify-wrap')!
+    this.$notifyWrap = this.$el.querySelector('.atk-notify-wrap')!
 
     this.initLocalStorage()
     this.initHeader()
@@ -200,13 +194,13 @@ export default class Editor extends Component {
     this.$plugWrap.innerHTML = ''
     this.$plugWrap.style.display = 'none'
     this.openedPlugName = null
-    this.$plugSwitcherWrap.innerHTML = ''
+    this.$plugBtnWrap.innerHTML = ''
 
     // 依次实例化 plug
     this.LOADABLE_PLUG_LIST.forEach((PlugObj) => {
       // 切换按钮
-      const btnElem = Utils.createElement(`<span class="atk-editor-action atk-editor-plug-switcher">${PlugObj.BtnHTML}</span>`)
-      this.$plugSwitcherWrap.appendChild(btnElem)
+      const btnElem = Utils.createElement(`<span class="atk-plug-btn">${PlugObj.BtnHTML}</span>`)
+      this.$plugBtnWrap.appendChild(btnElem)
       btnElem.addEventListener('click', () => {
         let plug = this.plugList[PlugObj.Name]
         if (!plug) {
@@ -214,7 +208,7 @@ export default class Editor extends Component {
           this.plugList[PlugObj.Name] = plug
         }
 
-        this.$plugSwitcherWrap.querySelectorAll('.active').forEach(item => item.classList.remove('active'))
+        this.$plugBtnWrap.querySelectorAll('.active').forEach(item => item.classList.remove('active'))
 
         // 若点击已打开的，则收起
         if (PlugObj.Name === this.openedPlugName) {
@@ -408,7 +402,8 @@ export default class Editor extends Component {
 
   /** 关闭评论 */
   close () {
-    this.$closeComment.style.display = ''
+    if (!this.$textareaWrap.querySelector('.atk-comment-closed'))
+      this.$textareaWrap.prepend(Utils.createElement('<div class="atk-comment-closed">仅管理员可评论</div>'))
 
     if (!this.user.data.isAdmin) {
       this.$textarea.style.display = 'none'
@@ -423,7 +418,7 @@ export default class Editor extends Component {
 
   /** 打开评论 */
   open () {
-    this.$closeComment.style.display = 'none'
+    this.$textareaWrap.querySelector('.atk-comment-closed')?.remove()
     this.$textarea.style.display = ''
     this.$bottom.style.display = ''
   }
