@@ -51,7 +51,7 @@
     img {
       width: 48px;
       height: 48px;
-      border-radius: 3px;
+      border-radius: 50%;
     }
   }
 
@@ -272,15 +272,16 @@
 .atk-comment-children {
   & > .atk-comment-wrap {
     margin-top: 10px;
-    border-left: 1px dashed var(--at-color-border);
+    // border-left: 1px dashed var(--at-color-border);
     border-bottom-color: transparent;
     &:not(:last-child) {
       margin-bottom: 5px;
     }
 
     & > .atk-comment {
-      padding-top: 4px;
+      padding-top: 10px;
       padding-bottom: 4px;
+      padding-left: 0;
 
       & > .atk-avatar img {
         width: 36px;
